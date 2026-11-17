@@ -83,3 +83,7 @@ Create a spreadsheet with these headers in the first row:
 - **Invoice contents are sent to Google Cloud Vision and to Mistral AI** for processing. Invoices often contain bank details and personal data: only use this with documents you are allowed to share with these services.
 - **API keys and OAuth tokens stay in your Make connections** and are never exported in the blueprint.
 - **Invoices are untrusted input.** A fake invoice could contain text designed to trick the AI (prompt injection). The extraction never triggers a payment, but always verify the vendor and bank details before paying.
+
+## License
+
+[MIT](LICENSE)
