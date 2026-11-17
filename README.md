@@ -2,7 +2,13 @@
 
 A [Make.com](https://www.make.com) scenario that picks up PDF invoices received by email, reads them with OCR, uses an AI model (Mistral) to extract the key financial data, and logs each invoice in Google Sheets with a list of anomalies to check.
 
+▶️ **Video tutorial:** [watch on YouTube](https://www.youtube.com/watch?v=pWPFcCM9-7g)
+
+[![Watch the tutorial on YouTube](https://img.youtube.com/vi/pWPFcCM9-7g/hqdefault.jpg)](https://www.youtube.com/watch?v=pWPFcCM9-7g)
+
 ## The scenario
+
+![Make.com scenario: Gmail → Gmail attachments → Google Cloud Vision → Mistral AI → JSON → Google Sheets](images/make-scenario.png)
 
 ```
 Gmail (email with attachment) ──► Attachments ──► Google Cloud Vision (OCR) ──► Mistral AI (extract as JSON) ──► Parse JSON ──► Google Sheets (add row)
