@@ -1,0 +1,1430 @@
+{
+    "name": "Extract Invoice Data with AI",
+    "flow": [
+        {
+            "id": 1,
+            "module": "google-email:triggerWatchNewEmails",
+            "version": 4,
+            "parameters": {
+                "from": "",
+                "size": {
+                    "unit": "M",
+                    "amount": null,
+                    "criteria": "larger"
+                },
+                "limit": 10,
+                "folder": "INBOX",
+                "format": "full",
+                "subject": "",
+                "criteria": "all",
+                "labelIds": "",
+                "markSeen": false,
+                "filterType": "simpleSearch",
+                "__IMTCONN__": null,
+                "excludeWords": "",
+                "includeWords": "",
+                "hasAttachment": true
+            },
+            "mapper": {},
+            "metadata": {
+                "designer": {
+                    "x": 0,
+                    "y": 0
+                },
+                "restore": {
+                    "parameters": {
+                        "size": {
+                            "nested": {
+                                "unit": {
+                                    "label": "MB (megabytes)"
+                                },
+                                "criteria": {
+                                    "label": "Greater than"
+                                }
+                            }
+                        },
+                        "folder": {
+                            "label": "Inbox"
+                        },
+                        "format": {
+                            "label": "Full content"
+                        },
+                        "criteria": {
+                            "label": "All messages"
+                        },
+                        "labelIds": {
+                            "label": "Empty"
+                        },
+                        "filterType": {
+                            "label": "Simple filter"
+                        },
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "google-email"
+                            },
+                            "label": "My Gmail connection"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:google-email",
+                        "label": "Connection",
+                        "required": true
+                    },
+                    {
+                        "name": "filterType",
+                        "type": "select",
+                        "label": "Filter type",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "simpleSearch",
+                                "gmailSearch"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "format",
+                        "type": "select",
+                        "label": "Content format",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "full",
+                                "raw",
+                                "metadata",
+                                "minimal"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "folder",
+                        "type": "select",
+                        "label": "Folder",
+                        "required": true
+                    },
+                    {
+                        "name": "labelIds",
+                        "type": "select",
+                        "label": "Label"
+                    },
+                    {
+                        "name": "criteria",
+                        "type": "select",
+                        "label": "Criteria",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "all",
+                                "is:read",
+                                "is:unread"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "markSeen",
+                        "type": "boolean",
+                        "label": "Mark email message(s) as read when fetched"
+                    },
+                    {
+                        "name": "limit",
+                        "type": "uinteger",
+                        "label": "Limit",
+                        "required": true,
+                        "validate": {
+                            "max": 500
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "type": "email",
+                        "label": "Sender email address"
+                    },
+                    {
+                        "name": "subject",
+                        "type": "text",
+                        "label": "Subject"
+                    },
+                    {
+                        "name": "includeWords",
+                        "type": "text",
+                        "label": "Has the words"
+                    },
+                    {
+                        "name": "excludeWords",
+                        "type": "text",
+                        "label": "Doesn't have"
+                    },
+                    {
+                        "name": "size",
+                        "spec": [
+                            {
+                                "name": "criteria",
+                                "type": "select",
+                                "label": "Criteria",
+                                "validate": {
+                                    "enum": [
+                                        "larger",
+                                        "smaller"
+                                    ]
+                                }
+                            },
+                            {
+                                "name": "amount",
+                                "type": "integer",
+                                "label": "Size",
+                                "validate": {
+                                    "min": 0
+                                }
+                            },
+                            {
+                                "name": "unit",
+                                "type": "select",
+                                "label": "Size unit",
+                                "validate": {
+                                    "enum": [
+                                        "M",
+                                        "K",
+                                        "bytes"
+                                    ]
+                                }
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Email size"
+                    },
+                    {
+                        "name": "hasAttachment",
+                        "type": "boolean",
+                        "label": "Only emails with attachments/media",
+                        "required": true
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "id",
+                        "type": "text",
+                        "label": "Message ID"
+                    },
+                    {
+                        "name": "threadId",
+                        "type": "text",
+                        "label": "Thread ID"
+                    },
+                    {
+                        "name": "internalDate",
+                        "type": "date",
+                        "label": "Date"
+                    },
+                    {
+                        "name": "subject",
+                        "type": "text",
+                        "label": "Subject",
+                        "condition": true
+                    },
+                    {
+                        "name": "fromName",
+                        "type": "text",
+                        "label": "From (name)",
+                        "condition": true
+                    },
+                    {
+                        "name": "fromEmail",
+                        "type": "text",
+                        "label": "From (email)",
+                        "condition": true
+                    },
+                    {
+                        "name": "to",
+                        "spec": {
+                            "spec": [
+                                {
+                                    "name": "name",
+                                    "type": "text",
+                                    "label": "Name"
+                                },
+                                {
+                                    "name": "email",
+                                    "type": "text",
+                                    "label": "Email"
+                                }
+                            ],
+                            "type": "collection"
+                        },
+                        "type": "array",
+                        "label": "To",
+                        "condition": true
+                    },
+                    {
+                        "name": "cc",
+                        "spec": [
+                            {
+                                "name": "email",
+                                "type": "email",
+                                "label": "Email"
+                            },
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "Name"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "CC",
+                        "condition": true
+                    },
+                    {
+                        "name": "bcc",
+                        "spec": [
+                            {
+                                "name": "email",
+                                "type": "email",
+                                "label": "Email"
+                            },
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "Name"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "BCC",
+                        "condition": true
+                    },
+                    {
+                        "name": "snippet",
+                        "type": "text",
+                        "label": "Snippet"
+                    },
+                    {
+                        "name": "fullTextBody",
+                        "type": "text",
+                        "label": "Full text body",
+                        "condition": true
+                    },
+                    {
+                        "name": "htmlBody",
+                        "type": "text",
+                        "label": "HTML body",
+                        "condition": true
+                    },
+                    {
+                        "name": "hasAttachment",
+                        "type": "boolean",
+                        "label": "Has attachment",
+                        "condition": true
+                    },
+                    {
+                        "name": "hasMedia",
+                        "type": "boolean",
+                        "label": "Has media",
+                        "condition": true
+                    },
+                    {
+                        "name": "sysFolders",
+                        "spec": [
+                            {
+                                "name": "id",
+                                "type": "text",
+                                "label": "System folder ID"
+                            },
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "System folder name"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "System folders"
+                    },
+                    {
+                        "name": "categoryFolders",
+                        "spec": [
+                            {
+                                "name": "id",
+                                "type": "text",
+                                "label": "Category folder ID"
+                            },
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "Category folder name"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Category folders"
+                    },
+                    {
+                        "name": "userLabelFolders",
+                        "spec": [
+                            {
+                                "name": "id",
+                                "type": "text",
+                                "label": "User label folder ID"
+                            },
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "User label folder name"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "User label folders"
+                    },
+                    {
+                        "name": "labelIds",
+                        "spec": {
+                            "type": "text"
+                        },
+                        "type": "array",
+                        "label": "Message folder IDs"
+                    },
+                    {
+                        "name": "headers",
+                        "spec": [
+                            {
+                                "name": "Delivered-To",
+                                "type": "text",
+                                "label": "Delivered-To"
+                            },
+                            {
+                                "name": "Received",
+                                "type": "text",
+                                "label": "Received"
+                            },
+                            {
+                                "name": "Date",
+                                "type": "text",
+                                "label": "Date (header)"
+                            },
+                            {
+                                "name": "X-Original-Sender",
+                                "type": "text"
+                            },
+                            {
+                                "name": "Reply-To",
+                                "type": "text"
+                            },
+                            {
+                                "name": "Subject",
+                                "type": "text",
+                                "label": "Subject"
+                            },
+                            {
+                                "name": "From",
+                                "type": "text",
+                                "label": "From"
+                            },
+                            {
+                                "name": "To",
+                                "type": "text",
+                                "label": "To"
+                            },
+                            {
+                                "name": "Message-ID",
+                                "type": "text",
+                                "label": "Message-ID"
+                            },
+                            {
+                                "name": "In-Reply-To",
+                                "type": "text",
+                                "label": "In-Reply-To"
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Headers",
+                        "condition": true
+                    },
+                    {
+                        "name": "sizeEstimate",
+                        "type": "number",
+                        "label": "Size estimate"
+                    },
+                    {
+                        "name": "historyId",
+                        "type": "text",
+                        "label": "History ID"
+                    }
+                ],
+                "advanced": true
+            }
+        },
+        {
+            "id": 19,
+            "module": "google-email:listEmailAttachments",
+            "version": 4,
+            "parameters": {
+                "__IMTCONN__": null
+            },
+            "mapper": {
+                "include": "attachment",
+                "messageId": "{{1.id}}",
+                "returnAttachmentData": true
+            },
+            "metadata": {
+                "designer": {
+                    "x": 300,
+                    "y": 0
+                },
+                "restore": {
+                    "expect": {
+                        "include": {
+                            "mode": "edit"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "google-email"
+                            },
+                            "label": "My connection"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:google-email",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "messageId",
+                        "type": "text",
+                        "label": "Message ID",
+                        "required": true
+                    },
+                    {
+                        "name": "include",
+                        "type": "select",
+                        "label": "Include",
+                        "multiple": true,
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "attachment",
+                                "media"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "returnAttachmentData",
+                        "type": "boolean",
+                        "label": "Return media or attachment file data",
+                        "required": true
+                    }
+                ],
+                "advanced": true
+            }
+        },
+        {
+            "id": 25,
+            "module": "googlecloudvision:DetectTextInFile",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": null
+            },
+            "mapper": {
+                "data": "{{19.data}}",
+                "limit": "5",
+                "mimeType": "application/pdf",
+                "fileSendMethod": "send_type_data",
+                "isToIncludeFullTextAnnotation": false
+            },
+            "metadata": {
+                "designer": {
+                    "x": 600,
+                    "y": 0
+                },
+                "restore": {
+                    "expect": {
+                        "mimeType": {
+                            "label": "PDF"
+                        },
+                        "fileSendMethod": {
+                            "label": "Data"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "googlecloudvision"
+                            },
+                            "label": "My Google Cloud Vision connection"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:googlecloudvision",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "limit",
+                        "type": "uinteger",
+                        "label": "Limit",
+                        "required": true
+                    },
+                    {
+                        "name": "fileSendMethod",
+                        "type": "select",
+                        "label": "Data/URL",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "send_type_data",
+                                "send_type_url"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "mimeType",
+                        "type": "select",
+                        "label": "MIME type",
+                        "validate": {
+                            "enum": [
+                                "application/pdf",
+                                "image/tiff"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "isToIncludeFullTextAnnotation",
+                        "type": "boolean",
+                        "label": "Include Pages in Full Text Annotation",
+                        "required": true
+                    },
+                    {
+                        "name": "data",
+                        "type": "buffer",
+                        "label": "Data",
+                        "required": true
+                    },
+                    {
+                        "name": "limit",
+                        "type": "uinteger",
+                        "label": "Limit",
+                        "required": true
+                    },
+                    {
+                        "name": "fileSendMethod",
+                        "type": "select",
+                        "label": "Data/URL",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "send_type_data",
+                                "send_type_url"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "mimeType",
+                        "type": "select",
+                        "label": "MIME type",
+                        "validate": {
+                            "enum": [
+                                "application/pdf",
+                                "image/tiff"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "isToIncludeFullTextAnnotation",
+                        "type": "boolean",
+                        "label": "Include Pages in Full Text Annotation",
+                        "required": true
+                    },
+                    {
+                        "name": "data",
+                        "type": "buffer",
+                        "label": "Data",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 26,
+            "module": "mistral-ai:createACompletion",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": null
+            },
+            "mapper": {
+                "model": "mistral-medium-latest",
+                "top_p": "1",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are an expert Accounts Payable (AP) automation system specialized in invoice data extraction.\r\nYou receive raw OCR text extracted from invoices (PDFs or images).\r\nYour task is to extract structured, normalized financial data.\r\n\r\nIMPORTANT RULES:\r\nUse ONLY information explicitly present in the text\r\nDo NOT infer missing values\r\nIf a field is missing, return null\r\nNormalize dates to YYYY-MM-DD format\r\nNormalize currency to ISO codes (EUR, USD, GBP, etc.)\r\nNormalize numeric values as numbers (no currency symbols)\r\nIgnore headers, footers, and noise from OCR\r\nIf multiple candidates exist, choose the most likely based on invoice context\r\nReturn VALID JSON ONLY (no markdown, no explanation, no backticks)\r\n\r\nOUTPUT SCHEMA:\r\n{\r\n\"vendor_name\": \"\",\r\n\"vendor_address\": \"\",\r\n\"customer_name\": \"\",\r\n\"customer_address\": \"\",\r\n\"invoice_number\": \"\",\r\n\"invoice_date\": \"\",\r\n\"due_date\": \"\",\r\n\"currency\": \"\",\r\n\"subtotal\": null,\r\n\"tax_amount\": null,\r\n\"total_discount\": null,\r\n\"shipping_amount\": null,\r\n\"total_amount\": null,\r\n\"payment_terms\": \"\",\r\n\"vat_number\": \"\",\r\n\"purchase_order_number\": \"\",\r\n\"payment_details\": {\r\n\"iban\": null,\r\n\"swift\": null,\r\n\"bank_account_number\": null\r\n},\r\n\"line_items\": [\r\n{\r\n\"description\": \"\",\r\n\"quantity\": null,\r\n\"unit_price\": null,\r\n\"total\": null\r\n}\r\n],\r\n\"anomalies\": [\r\n{\r\n\"type\": \"\",\r\n\"description\": \"\"\r\n}\r\n]\r\n}\r\n\r\nFIELD NOTES:\r\ncustomer_name / customer_address: the \"Bill To\" party on the invoice (the recipient), as distinct from the vendor.\r\ntotal_discount: only if explicitly present as a separate amount on the invoice. Otherwise null.\r\nshipping_amount: only if explicitly present as a separate shipping, freight, delivery, transport, handling, or carriage line on the invoice. Otherwise null.\r\npayment_details: always return all three fields (iban, swift, bank_account_number). Use null for any value not explicitly present.\r\n\r\nANOMALY RULES:\r\nOnly flag the following two cases. Do not calculate, compare, or check any numeric values.\r\n- due_date is before invoice_date\r\n- invoice_number is missing\r\n\r\nIf neither case applies, return an empty array for anomalies.\r\n\r\nReturn VALID JSON ONLY. No markdown, no backticks, no explanation.\r\n"
+                    },
+                    {
+                        "role": "user",
+                        "content": "{{25.fullTextAnnotation.text}}"
+                    }
+                ],
+                "safe_prompt": false,
+                "temperature": "0.7",
+                "response_format": {
+                    "type": "text"
+                }
+            },
+            "metadata": {
+                "designer": {
+                    "x": 900,
+                    "y": 0
+                },
+                "restore": {
+                    "expect": {
+                        "model": {
+                            "mode": "chose",
+                            "label": "mistral-medium-latest"
+                        },
+                        "messages": {
+                            "mode": "chose",
+                            "items": [
+                                {
+                                    "role": {
+                                        "mode": "chose",
+                                        "label": "System"
+                                    }
+                                },
+                                {
+                                    "role": {
+                                        "mode": "chose",
+                                        "label": "User"
+                                    }
+                                }
+                            ]
+                        },
+                        "safe_prompt": {
+                            "mode": "chose"
+                        },
+                        "tool_choice": {
+                            "mode": "chose",
+                            "label": "Empty"
+                        },
+                        "response_format": {
+                            "nested": {
+                                "type": {
+                                    "mode": "chose",
+                                    "label": "Text"
+                                }
+                            }
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "mistral-ai"
+                            },
+                            "label": "My Mistral connection"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:mistral-ai",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "model",
+                        "type": "select",
+                        "label": "Model",
+                        "required": true
+                    },
+                    {
+                        "name": "messages",
+                        "spec": {
+                            "name": "value",
+                            "spec": [
+                                {
+                                    "name": "role",
+                                    "type": "select",
+                                    "label": "Role",
+                                    "options": [
+                                        {
+                                            "label": "User",
+                                            "value": "user"
+                                        },
+                                        {
+                                            "label": "System",
+                                            "value": "system"
+                                        },
+                                        {
+                                            "label": "Assistant",
+                                            "value": "assistant"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "content",
+                                    "type": "text",
+                                    "label": "Content"
+                                }
+                            ],
+                            "type": "collection"
+                        },
+                        "type": "array",
+                        "label": "Messages",
+                        "required": true
+                    },
+                    {
+                        "name": "temperature",
+                        "type": "number",
+                        "label": "Temperature"
+                    },
+                    {
+                        "name": "top_p",
+                        "type": "number",
+                        "label": "Top P"
+                    },
+                    {
+                        "name": "max_tokens",
+                        "type": "integer",
+                        "label": "Max Tokens",
+                        "validate": {
+                            "min": 0
+                        }
+                    },
+                    {
+                        "name": "safe_prompt",
+                        "type": "boolean",
+                        "label": "Safe Mode"
+                    },
+                    {
+                        "name": "random_seed",
+                        "type": "integer",
+                        "label": "Random Seed"
+                    },
+                    {
+                        "name": "stop",
+                        "type": "text",
+                        "label": "Stop"
+                    },
+                    {
+                        "name": "response_format",
+                        "spec": [
+                            {
+                                "name": "type",
+                                "type": "select",
+                                "label": "Type",
+                                "validate": {
+                                    "enum": [
+                                        "text",
+                                        "json_object"
+                                    ]
+                                }
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Response Format"
+                    },
+                    {
+                        "name": "tools",
+                        "type": "any",
+                        "label": "Tools"
+                    },
+                    {
+                        "name": "tool_choice",
+                        "type": "select",
+                        "label": "Tool Choice",
+                        "validate": {
+                            "enum": [
+                                "auto",
+                                "none",
+                                "any"
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": 27,
+            "module": "json:ParseJSON",
+            "version": 1,
+            "parameters": {
+                "type": ""
+            },
+            "mapper": {
+                "json": "{{26.choices[].message.content}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1200,
+                    "y": 0
+                },
+                "restore": {
+                    "parameters": {
+                        "type": {
+                            "label": "Choose a data structure"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "type",
+                        "type": "udt",
+                        "label": "Data structure"
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "json",
+                        "type": "text",
+                        "label": "JSON string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 28,
+            "module": "google-sheets:addRow",
+            "version": 2,
+            "parameters": {
+                "__IMTCONN__": null
+            },
+            "mapper": {
+                "from": "drive",
+                "mode": "select",
+                "values": {
+                    "DueDate": "{{27.due_date}}",
+                    "Currency": "{{27.currency}}",
+                    "Subtotal": "{{27.subtotal}}",
+                    "Anomalies": "{{join(map(27.anomalies; \"description\"); \" | \")}}{{if(round(abs((ifempty(27.subtotal; 0) + ifempty(27.tax_amount; 0) + ifempty(27.shipping_amount; 0) - ifempty(27.total_discount; 0)) - ifempty(27.total_amount; 0)) * 100) > 1; \" | Subtotal plus tax plus shipping minus discount does not equal total amount.\"; )}}",
+                    "LineItems": "{{join(map(27.line_items; \"description\"); \" | \")}}",
+                    "TaxAmount": "{{27.tax_amount}}",
+                    "VendorName": "{{27.vendor_name}}",
+                    "InvoiceDate": "{{27.invoice_date}}",
+                    "TotalAmount": "{{27.total_amount}}",
+                    "PaymentTerms": "{{27.payment_terms}}",
+                    "InvoiceNumber": "{{27.invoice_number}}",
+                    "VendorAddress": "{{27.vendor_address}}",
+                    "ShippingAmount": "{{27.shipping_amount}}"
+                },
+                "sheetId": "Feuille 1",
+                "spreadsheetId": "/YOUR_SPREADSHEET_ID",
+                "includesHeaders": true,
+                "insertDataOption": "INSERT_ROWS",
+                "useColumnHeaders": true,
+                "valueInputOption": "USER_ENTERED",
+                "insertUnformatted": false
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1500,
+                    "y": 0
+                },
+                "restore": {
+                    "expect": {
+                        "from": {
+                            "label": "My Drive"
+                        },
+                        "mode": {
+                            "label": "Search by path"
+                        },
+                        "sheetId": {
+                            "label": "Feuille 1"
+                        },
+                        "spreadsheetId": {
+                            "path": [
+                                "Invoice extraction"
+                            ]
+                        },
+                        "includesHeaders": {
+                            "label": "Yes"
+                        },
+                        "insertDataOption": {
+                            "mode": "chose",
+                            "label": "Insert rows"
+                        },
+                        "useColumnHeaders": {
+                            "label": "Yes",
+                            "nested": [
+                                {
+                                    "name": "values",
+                                    "spec": [
+                                        {
+                                            "name": "VendorName",
+                                            "type": "text",
+                                            "label": "VendorName (A)"
+                                        },
+                                        {
+                                            "name": "VendorAddress",
+                                            "type": "text",
+                                            "label": "VendorAddress (B)"
+                                        },
+                                        {
+                                            "name": "InvoiceNumber",
+                                            "type": "text",
+                                            "label": "InvoiceNumber (C)"
+                                        },
+                                        {
+                                            "name": "InvoiceDate",
+                                            "type": "text",
+                                            "label": "InvoiceDate (D)"
+                                        },
+                                        {
+                                            "name": "DueDate",
+                                            "type": "text",
+                                            "label": "DueDate (E)"
+                                        },
+                                        {
+                                            "name": "Currency",
+                                            "type": "text",
+                                            "label": "Currency (F)"
+                                        },
+                                        {
+                                            "name": "Subtotal",
+                                            "type": "text",
+                                            "label": "Subtotal (G)"
+                                        },
+                                        {
+                                            "name": "TaxAmount",
+                                            "type": "text",
+                                            "label": "TaxAmount (H)"
+                                        },
+                                        {
+                                            "name": "ShippingAmount",
+                                            "type": "text",
+                                            "label": "ShippingAmount (I)"
+                                        },
+                                        {
+                                            "name": "TotalAmount",
+                                            "type": "text",
+                                            "label": "TotalAmount (J)"
+                                        },
+                                        {
+                                            "name": "PaymentTerms",
+                                            "type": "text",
+                                            "label": "PaymentTerms (K)"
+                                        },
+                                        {
+                                            "name": "LineItems",
+                                            "type": "text",
+                                            "label": "LineItems (L)"
+                                        },
+                                        {
+                                            "name": "Anomalies",
+                                            "type": "text",
+                                            "label": "Anomalies (M)"
+                                        },
+                                        {
+                                            "name": "undefined",
+                                            "type": "text",
+                                            "label": "(N)"
+                                        },
+                                        {
+                                            "name": "undefined",
+                                            "type": "text",
+                                            "label": "(O)"
+                                        },
+                                        {
+                                            "name": "undefined",
+                                            "type": "text",
+                                            "label": "(P)"
+                                        },
+                                        {
+                                            "name": "undefined",
+                                            "type": "text",
+                                            "label": "(Q)"
+                                        },
+                                        {
+                                            "name": "undefined",
+                                            "type": "text",
+                                            "label": "(R)"
+                                        },
+                                        {
+                                            "name": "undefined",
+                                            "type": "text",
+                                            "label": "(S)"
+                                        },
+                                        {
+                                            "name": "undefined",
+                                            "type": "text",
+                                            "label": "(T)"
+                                        },
+                                        {
+                                            "name": "undefined",
+                                            "type": "text",
+                                            "label": "(U)"
+                                        },
+                                        {
+                                            "name": "undefined",
+                                            "type": "text",
+                                            "label": "(V)"
+                                        },
+                                        {
+                                            "name": "undefined",
+                                            "type": "text",
+                                            "label": "(W)"
+                                        },
+                                        {
+                                            "name": "undefined",
+                                            "type": "text",
+                                            "label": "(X)"
+                                        },
+                                        {
+                                            "name": "undefined",
+                                            "type": "text",
+                                            "label": "(Y)"
+                                        },
+                                        {
+                                            "name": "undefined",
+                                            "type": "text",
+                                            "label": "(Z)"
+                                        },
+                                        {
+                                            "name": "undefined",
+                                            "type": "text",
+                                            "label": "(AA)"
+                                        }
+                                    ],
+                                    "type": "collection",
+                                    "label": "Values in columns",
+                                    "metadata": [
+                                        [
+                                            [
+                                                "VendorName",
+                                                "VendorAddress",
+                                                "InvoiceNumber",
+                                                "InvoiceDate",
+                                                "DueDate",
+                                                "Currency",
+                                                "Subtotal",
+                                                "TaxAmount",
+                                                "ShippingAmount",
+                                                "TotalAmount",
+                                                "PaymentTerms",
+                                                "LineItems",
+                                                "Anomalies"
+                                            ]
+                                        ]
+                                    ]
+                                }
+                            ]
+                        },
+                        "valueInputOption": {
+                            "mode": "chose",
+                            "label": "User entered"
+                        },
+                        "insertUnformatted": {
+                            "mode": "chose"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "google"
+                            },
+                            "label": "My Google connection"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:google",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "mode",
+                        "type": "select",
+                        "label": "Search Method",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "select",
+                                "fromAll",
+                                "map"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "insertUnformatted",
+                        "type": "boolean",
+                        "label": "Unformatted",
+                        "required": true
+                    },
+                    {
+                        "name": "valueInputOption",
+                        "type": "select",
+                        "label": "Value input option",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "USER_ENTERED",
+                                "RAW"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "insertDataOption",
+                        "type": "select",
+                        "label": "Insert data option",
+                        "validate": {
+                            "enum": [
+                                "INSERT_ROWS",
+                                "OVERWRITE"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "type": "select",
+                        "label": "Drive",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "drive",
+                                "share",
+                                "team"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "spreadsheetId",
+                        "type": "file",
+                        "label": "Spreadsheet Name",
+                        "required": true
+                    },
+                    {
+                        "name": "sheetId",
+                        "type": "select",
+                        "label": "Sheet Name",
+                        "required": true
+                    },
+                    {
+                        "name": "includesHeaders",
+                        "type": "select",
+                        "label": "Table contains headers",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                true,
+                                false
+                            ]
+                        }
+                    },
+                    {
+                        "name": "useColumnHeaders",
+                        "type": "select",
+                        "label": "Use column headers as IDs of the columns",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                true,
+                                false
+                            ]
+                        }
+                    },
+                    {
+                        "name": "values",
+                        "spec": [
+                            {
+                                "name": "VendorName",
+                                "type": "text",
+                                "label": "VendorName (A)"
+                            },
+                            {
+                                "name": "VendorAddress",
+                                "type": "text",
+                                "label": "VendorAddress (B)"
+                            },
+                            {
+                                "name": "InvoiceNumber",
+                                "type": "text",
+                                "label": "InvoiceNumber (C)"
+                            },
+                            {
+                                "name": "InvoiceDate",
+                                "type": "text",
+                                "label": "InvoiceDate (D)"
+                            },
+                            {
+                                "name": "DueDate",
+                                "type": "text",
+                                "label": "DueDate (E)"
+                            },
+                            {
+                                "name": "Currency",
+                                "type": "text",
+                                "label": "Currency (F)"
+                            },
+                            {
+                                "name": "Subtotal",
+                                "type": "text",
+                                "label": "Subtotal (G)"
+                            },
+                            {
+                                "name": "TaxAmount",
+                                "type": "text",
+                                "label": "TaxAmount (H)"
+                            },
+                            {
+                                "name": "ShippingAmount",
+                                "type": "text",
+                                "label": "ShippingAmount (I)"
+                            },
+                            {
+                                "name": "TotalAmount",
+                                "type": "text",
+                                "label": "TotalAmount (J)"
+                            },
+                            {
+                                "name": "PaymentTerms",
+                                "type": "text",
+                                "label": "PaymentTerms (K)"
+                            },
+                            {
+                                "name": "LineItems",
+                                "type": "text",
+                                "label": "LineItems (L)"
+                            },
+                            {
+                                "name": "Anomalies",
+                                "type": "text",
+                                "label": "Anomalies (M)"
+                            },
+                            {
+                                "name": "undefined",
+                                "type": "text",
+                                "label": "(N)"
+                            },
+                            {
+                                "name": "undefined",
+                                "type": "text",
+                                "label": "(O)"
+                            },
+                            {
+                                "name": "undefined",
+                                "type": "text",
+                                "label": "(P)"
+                            },
+                            {
+                                "name": "undefined",
+                                "type": "text",
+                                "label": "(Q)"
+                            },
+                            {
+                                "name": "undefined",
+                                "type": "text",
+                                "label": "(R)"
+                            },
+                            {
+                                "name": "undefined",
+                                "type": "text",
+                                "label": "(S)"
+                            },
+                            {
+                                "name": "undefined",
+                                "type": "text",
+                                "label": "(T)"
+                            },
+                            {
+                                "name": "undefined",
+                                "type": "text",
+                                "label": "(U)"
+                            },
+                            {
+                                "name": "undefined",
+                                "type": "text",
+                                "label": "(V)"
+                            },
+                            {
+                                "name": "undefined",
+                                "type": "text",
+                                "label": "(W)"
+                            },
+                            {
+                                "name": "undefined",
+                                "type": "text",
+                                "label": "(X)"
+                            },
+                            {
+                                "name": "undefined",
+                                "type": "text",
+                                "label": "(Y)"
+                            },
+                            {
+                                "name": "undefined",
+                                "type": "text",
+                                "label": "(Z)"
+                            },
+                            {
+                                "name": "undefined",
+                                "type": "text",
+                                "label": "(AA)"
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Values in columns",
+                        "metadata": [
+                            [
+                                [
+                                    "VendorName",
+                                    "VendorAddress",
+                                    "InvoiceNumber",
+                                    "InvoiceDate",
+                                    "DueDate",
+                                    "Currency",
+                                    "Subtotal",
+                                    "TaxAmount",
+                                    "ShippingAmount",
+                                    "TotalAmount",
+                                    "PaymentTerms",
+                                    "LineItems",
+                                    "Anomalies"
+                                ]
+                            ]
+                        ]
+                    }
+                ]
+            }
+        }
+    ],
+    "metadata": {
+        "instant": false,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "eu1.make.com",
+        "notes": []
+    }
+}
