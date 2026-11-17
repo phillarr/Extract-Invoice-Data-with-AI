@@ -1,6 +1,6 @@
 # Extract Invoice Data with AI
 
-A [Make.com](https://www.make.com) scenario that picks up PDF invoices received by email, reads them with OCR, uses an AI model (Mistral) to extract the key financial data, and logs each invoice in Google Sheets with a list of anomalies to check.
+A scenario that picks up PDF invoices received by email, reads them with OCR, uses an AI model (Mistral) to extract the key financial data, and logs each invoice in Google Sheets with a list of anomalies to check.
 
 ▶️ **Video tutorial:** [watch on YouTube](https://www.youtube.com/watch?v=pWPFcCM9-7g)
 
